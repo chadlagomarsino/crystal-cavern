@@ -1,0 +1,27 @@
+:root {
+  --colNum: 8;
+  --rowNum: 8;
+}
+
+.container {
+  display: grid;
+  background-color: white;
+  border: 5px solid;
+  height: 400px;
+  width: 400px;
+  grid-template-columns: repeat(var(--colNum), minmax(0.00001px, 1fr));
+}
+
+.item {
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(223, 177, 39, 0.24);
+  /*font-family: sans-serif;
+  font-weight: bold;
+  border: 1px solid;*/
+}
+
+.item-on {
+  background-color: red;
+}
