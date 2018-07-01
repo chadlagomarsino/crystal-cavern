@@ -25,9 +25,13 @@ function newTable() {
   let i;
   for (i = 0; i < square; i++) {
     const div = document.createElement('div');
+    //add style classes
     div.classList.add('item');
     div.classList.add('item' + i);
-
+    //add hover event listener
+    div.addEventListener('mouseover', function(e) {
+      e.target.style.background = 'tomato'
+    })
     //div.textContent = i; //FOR TESTING
     container.appendChild(div);
   }
