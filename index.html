@@ -14,15 +14,35 @@
 
 <body>
   <p>Crystal Cavern</p>
-  <input type="text" id="userInput"=>Input 4 to 64 </input>
-    <button onclick="newTable()">Refresh</button>
-
-
-  <div class ="container">
+  <div id="container">
+    <div id="panel">
+      <input type="text" placeholder="4" autocomplete="off" id="userInput">
+      Input 4 to 64 </input>
+      <button class="button" id="start">Start</button>
+      <button class="button" id="reset">Reset</button>
+      <button class="button" id="reload">Reload</button>
+    </div>
+  <div id="board">
+    <div id="0" class="item"></div>
+    <div id="1" class="item"></div>
+    <div id="2" class="item"></div>
+    <div id="3" class="item"></div>
+    <div id="4" class="item"></div>
+    <div id="5" class="item"></div>
+    <div id="6" class="item"></div>
+    <div id="7" class="item"></div>
+    <div id="8" class="item"></div>
+    <div id="9" class="item"></div>
+    <div id="10" class="item"></div>
+    <div id="11" class="item"></div>
+    <div id="12" class="item"></div>
+    <div id="13" class="item"></div>
+    <div id="14" class="item"></div>
+    <div id="15" class="item"></div>
   </div>
+</div>
 
-
-
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="crystal.js"></script>
 </body>
 

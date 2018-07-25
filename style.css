@@ -1,9 +1,16 @@
 :root {
-  --colNum: 8;
-  --rowNum: 8;
+  --colNum: 4;
 }
 
-.container {
+body {
+  background-color: rgb(250, 207, 231);
+}
+
+#panel {
+  background: white;
+}
+
+#board {
   display: grid;
   background-color: white;
   border: 5px solid;
@@ -13,15 +20,8 @@
 }
 
 .item {
-  display: grid;
   justify-content: center;
   align-items: center;
   background-color: rgba(223, 177, 39, 0.24);
-  /*font-family: sans-serif;
-  font-weight: bold;
-  border: 1px solid;*/
-}
-
-.item-on {
-  background-color: red;
+  border: 2px black solid;
 }
