@@ -33,11 +33,13 @@ const boardModule = (function board() {
     }
     else {console.log("Input must be greater than 4 and less than 64.");}
   });
-  $start.one('click', function() {
+  $start.on('click', function() {
     crystalsModule.crystalsModuleInit();
   });
   //TODO reset
   _refreshDivs();
+
+  //Methods
 
   function boardModuleInit() {
     //access from crystal array
@@ -76,12 +78,17 @@ const boardModule = (function board() {
   }
 
   function _render() {
+    //clear all board divs
     _clearBoard();
+    //resize grid to fit user input
     _setInput();
+    //add divs based on user input
     for (let i = 0; i < numDiv[0]; i++) {
       $board.append(`<div id="${i}" class="item"></div>`);
     };
+    //add event handlers to divs
     _refreshDivs();
+    //TODO clear cached crystalsToRender array from crystalsModule
   }
 
   return {
@@ -156,37 +163,92 @@ const crystalsModule = (function crystals() {
         return;
       }
     },
+    findNeighbors: function(boardLength) {
+
+      function crystalFilter(crystal) {
+        function checkNorth() {
+          return (parseInt(crystal.position) == parseInt(this.position - boardLength));
+        };
+        function checkNorthEast() {
+          return (parseInt(crystal.position) == parseInt(this.position - boardLength) + 1);
+        };
+        function checkEast() {
+          return (parseInt(crystal.position) == parseInt(this.position + 1));
+        };
+        function checkSouthEast() {
+          return (parseInt(crystal.position) == parseInt(this.position + boardLength) + 1);
+        };
+        function checkSouth() {
+          return (parseInt(crystal.position) == parseInt(this.position + boardLength));
+        };
+        function checkSouthWest() {
+          return (parseInt(crystal.position) == parseInt(this.position + boardLength) - 1);
+        };
+        function checkWest() {
+          return (parseInt(crystal.position) == parseInt(this.position - 1));
+        };
+        function checkNorthWest() {
+          return (parseInt(crystal.position) == parseInt(this.position - boardLength) - 1);
+        };
+        if (this.pieceType == "nw corner") {
+          console.log(this.pieceType);
+          return (checkEast.apply(this) ||
+          checkSouth.apply(this) ||
+          checkSouthEast.apply(this));
+        };
+        if (this.pieceType == "ne corner") {
+          console.log(this.pieceType);
+          return (checkWest.apply(this) ||
+          checkSouth.apply(this) ||
+          checkSouthWest.apply(this));
+        };
+        if (this.pieceType == "se corner") {
+          console.log(this.pieceType);
+          return (checkWest.apply(this) ||
+          checkNorth.apply(this) ||
+          checkNorthWest.apply(this));
+        };
+        if (this.pieceType == "sw corner") {
+          console.log(this.pieceType);
+          return (checkEast.apply(this) ||
+          checkNorth.apply(this) ||
+          checkNorthEast.apply(this));
+        };
+      };
+
+      this.neighbors.push(crystalsToRender.filter(crystalFilter, this));
+
+      console.log(this.neighbors);
+
+    },
     setGrow: function() { this.willGrow = true; },
     setUnGrow: function() { this.willGrow = false; },
     setDie: function() { this.willDie = true; },
     setUnDie: function() { this.willDie = false; },
-    findNeighbors: function() {
-      switch (this.pieceType) {
-        case: "nw corner"
-          //search crystal to render for crystals in position
-          // log color and position and in neighbors
-          // use filter
-      }
-      return
-    }
   };
 
+  //Methods
   function crystalsModuleInit() {
     //recieve active crystal list from boardModule.
     //index 0 = position, index 1 = color
     let crystalsToActivate = boardModule.crystalsToActivate;
+    //clear cached crystalsToRender array
     generateCrystal(crystalsToActivate);
   };
 
   function generateCrystal(crystalsToActivate) {
     let boardLength = Math.sqrt(boardModule.numDiv);
-    console.log(crystalsToActivate);
+    //create crystal objects in crystals to activate
     for(let i = 0; i < crystalsToActivate.length; i++) {
       crystalsToRender[i] = Object.create(Crystal);
       crystalsToRender[i].init("red", crystalsToActivate[i][1]);
       crystalsToRender[i].setPieceType(boardLength);
       //TIME TO WHIP OUT SOME FUNCTIONAL PROGRAMMING AND
       // Grow crystals by passing back crystalsToRender module
+    };
+    // once all crystals are generate record neighboring crystals
+    for(let i = 0; i < crystalsToRender.length; i++) {
+      crystalsToRender[i].findNeighbors(boardLength);
     };
   };
 
