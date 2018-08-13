@@ -1,13 +1,6 @@
 'use strict';
 
 //Wrap into Module
-  //Module for Container
-  //Module for Crystals
-  //Event loop for actions
-//Create Crystal Constructor
-  //Crystals have common properties to let them read the divs
-  //around them
-  //Each crystal time has special properties to put on the prototype
 
 const boardModule = (function board() {
   // default is a 4 by 4 square of divs
@@ -250,9 +243,14 @@ const crystalsModule = (function crystals() {
         };
       };
 
-      this.neighbors.push(crystalsToRender.filter(crystalFilter, this));
+      //store all active neighbor crystal objects adjacent to this crystal
+      let neighborCrystals = crystalsToRender.filter(crystalFilter, this)
+      //reduce neighbor crystal objects to color and position
+      let reducedNeighbors = neighborCrystals.map(obj => ({color: obj.color, position: obj.position}));
+      //push to this crystal's neighbor array
+      this.neighbors.push(reducedNeighbors);
 
-      console.log(this.neighbors);
+      //console.log(this.neighbors);
 
     },
     setGrow: function() { this.willGrow = true; },
@@ -267,11 +265,14 @@ const crystalsModule = (function crystals() {
     //index 0 = position, index 1 = color
     let crystalsToActivate = boardModule.crystalsToActivate;
     //clear cached crystalsToRender array
-    generateCrystal(crystalsToActivate);
+    //find game boardLength
+    let boardLength = Math.sqrt(boardModule.numDiv);
+    generateCrystal(crystalsToActivate, boardLength);
+    changeCrystalState(boardLength);
+    updateCrystalsToActivate();
   };
 
-  function generateCrystal(crystalsToActivate) {
-    let boardLength = Math.sqrt(boardModule.numDiv);
+  function generateCrystal(crystalsToActivate, boardLength) {
     //create crystal objects in crystals to activate
     for(let i = 0; i < crystalsToActivate.length; i++) {
       crystalsToRender[i] = Object.create(Crystal);
@@ -280,21 +281,31 @@ const crystalsModule = (function crystals() {
       //TIME TO WHIP OUT SOME FUNCTIONAL PROGRAMMING AND
       // Grow crystals by passing back crystalsToRender module
     };
+  };
+
+  function changeCrystalState(boardLength) {
     // once all crystals are generate record neighboring crystals
     for(let i = 0; i < crystalsToRender.length; i++) {
       crystalsToRender[i].findNeighbors(boardLength);
+      //set toGrow
+      if (crystalsToRender[i].neighbors[0].length > 2 ) {
+        crystalsToRender[i].setGrow();
+      }
+      //set toDie
+      if (crystalsToRender[i].neighbors[0].length < 2 ) {
+        crystalsToRender[i].setDie();
+      }
     };
-  };
-
-  function changeCrystalState() {
-    return;
+    console.log(crystalsToRender);
   }
 
-  function changeCrystalsToActivate() {
-    return;
-  }
+//TODO
+  function updateCrystalsToActivate() {
+    console.log(boardModule.crystalsToActivate);
+    //create function for crystal growth
+    //remove crystals marked for deletion
 
-  function returnCrystals() {
+
     return;
   }
 
