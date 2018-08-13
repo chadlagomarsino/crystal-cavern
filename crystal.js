@@ -167,52 +167,86 @@ const crystalsModule = (function crystals() {
 
       function crystalFilter(crystal) {
         function checkNorth() {
-          return (parseInt(crystal.position) == parseInt(this.position - boardLength));
+          return (parseInt(crystal.position) == parseInt(this.position) - boardLength);
         };
         function checkNorthEast() {
-          return (parseInt(crystal.position) == parseInt(this.position - boardLength) + 1);
+          return (parseInt(crystal.position) == parseInt(this.position) - boardLength + 1);
         };
         function checkEast() {
-          return (parseInt(crystal.position) == parseInt(this.position + 1));
+          return (parseInt(crystal.position) == parseInt(this.position) + 1);
         };
         function checkSouthEast() {
-          return (parseInt(crystal.position) == parseInt(this.position + boardLength) + 1);
+          return (parseInt(crystal.position) == parseInt(this.position) + boardLength + 1);
         };
         function checkSouth() {
-          return (parseInt(crystal.position) == parseInt(this.position + boardLength));
+          return (parseInt(crystal.position) == parseInt(this.position) + boardLength);
         };
         function checkSouthWest() {
-          return (parseInt(crystal.position) == parseInt(this.position + boardLength) - 1);
+          return (parseInt(crystal.position) == parseInt(this.position) + boardLength - 1);
         };
         function checkWest() {
-          return (parseInt(crystal.position) == parseInt(this.position - 1));
+          return (parseInt(crystal.position) == parseInt(this.position) - 1);
         };
         function checkNorthWest() {
-          return (parseInt(crystal.position) == parseInt(this.position - boardLength) - 1);
+          return (parseInt(crystal.position) == parseInt(this.position) - boardLength - 1);
         };
         if (this.pieceType == "nw corner") {
-          console.log(this.pieceType);
           return (checkEast.apply(this) ||
           checkSouth.apply(this) ||
           checkSouthEast.apply(this));
         };
         if (this.pieceType == "ne corner") {
-          console.log(this.pieceType);
           return (checkWest.apply(this) ||
           checkSouth.apply(this) ||
           checkSouthWest.apply(this));
         };
         if (this.pieceType == "se corner") {
-          console.log(this.pieceType);
           return (checkWest.apply(this) ||
           checkNorth.apply(this) ||
           checkNorthWest.apply(this));
         };
         if (this.pieceType == "sw corner") {
-          console.log(this.pieceType);
           return (checkEast.apply(this) ||
           checkNorth.apply(this) ||
           checkNorthEast.apply(this));
+        };
+        if (this.pieceType == "north edge") {
+          return (checkEast.apply(this) ||
+          checkWest.apply(this) ||
+          checkSouth.apply(this) ||
+          checkSouthEast.apply(this) ||
+          checkSouthWest.apply(this));
+        };
+        if (this.pieceType == "south edge") {
+          return (checkEast.apply(this) ||
+          checkWest.apply(this) ||
+          checkNorth.apply(this) ||
+          checkNorthEast.apply(this) ||
+          checkNorthWest.apply(this));
+        };
+        if (this.pieceType == "west edge") {
+          return (checkEast.apply(this) ||
+          checkNorth.apply(this) ||
+          checkSouth.apply(this) ||
+          checkNorthEast.apply(this) ||
+          checkSouthEast.apply(this));
+        };
+        if (this.pieceType == "east edge") {
+          return (checkWest.apply(this) ||
+          checkNorth.apply(this) ||
+          checkSouth.apply(this) ||
+          checkNorthWest.apply(this) ||
+          checkSouthWest.apply(this));
+        };
+        if (this.pieceType == "central") {
+          return (checkNorth.apply(this) ||
+          checkNorthEast.apply(this) ||
+          checkEast.apply(this) ||
+          checkSouthEast.apply(this) ||
+          checkSouth.apply(this) ||
+          checkSouthWest.apply(this) ||
+          checkWest.apply(this) ||
+          checkNorthWest.apply(this));
         };
       };
 
