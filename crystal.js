@@ -1,14 +1,18 @@
 'use strict';
 
-//Wrap into Module
+// Cellular Autonoma with Manual and Auto Mode
+// Runs on event loop with two modules:
+// boardModule == manipulates DOM and accepts user input to change board display
+// crystalsModule == tracks and mutates crystal objects
 
 const boardModule = (function board() {
   // default is a 4 by 4 square of divs
   let numDiv = [16];
 
-  // array of color and position values for active crystals from the
-  // crystalsModule.crystalsToRender array of objects
-  let crystalsToActivate = [];
+  // Manual Mode:
+  // array of color and position values for divs that have been manually
+  // selected by the user to later populate with crystal objects
+  let manualActiveCrystals = [];
 
   //cache DOM
   const $container = $('#container');
@@ -22,21 +26,59 @@ const boardModule = (function board() {
   //bind events
   $reload.on('click', function() {
     if ($userInput.val() >= 4 && $userInput.val() <= 64) {
-      _render();
+      _reloadBoard();
     }
     else {console.log("Input must be greater than 4 and less than 64.");}
   });
   $start.on('click', function() {
-    crystalsModule.crystalsModuleInit();
+    crystalsModule.manualCrystalsModuleInit();
   });
   //TODO reset
+
+  //intialize board
   _refreshDivs();
 
+  //*
   //Methods
+  //*
 
+  // accepts crystalsToRender array from crystal module and displays
+  // activated crystals on the DOM
   function boardModuleInit() {
-    //access from crystal array
-    return;
+    let crystalsToRender = crystalsModule.crystalsToRender;
+    //display activated crystals on DOM
+    for (let i = 0; i < crystalsToRender.length; i++) {
+      //grab each div that maps to an active crystal object
+      let activeDiv = document.getElementById(crystalsToRender[i].position);
+      activeDiv.style.background = 'goldenrod';
+    }
+  }
+
+  function _reloadBoard() {
+
+    //remove all divs from game board
+    function _clearBoard() {
+      $board.empty();
+    }
+
+    //update numDiv and --colNum for CSS Grid with user input
+    function _setInput() {
+      numDiv.pop();
+      let inputValue = $userInput.val();
+      numDiv.push(inputValue * inputValue);
+      $board.css('--colNum', inputValue);
+    }
+
+    //clear all board divs
+    _clearBoard();
+    //resize grid to fit user input
+    _setInput();
+    //add divs based on user input
+    for (let i = 0; i < numDiv[0]; i++) {
+      $board.append(`<div id="${i}" class="item"></div>`);
+    };
+    //add event handlers to divs
+    _refreshDivs();
   }
 
   function _refreshDivs() {
@@ -54,40 +96,13 @@ const boardModule = (function board() {
     //NOTE: Position IDs begin with 0 and increment untill the number of
     // squares - 1.
     let position = this.id;
-    crystalsToActivate.push([color, position]);
-  }
-
-  //remove all divs from game board
-  function _clearBoard() {
-    $board.empty();
-  }
-
-  //update numDiv and --colNum for CSS Grid with user input
-  function _setInput() {
-    numDiv.pop();
-    let inputValue = $userInput.val();
-    numDiv.push(inputValue * inputValue);
-    $board.css('--colNum', inputValue);
-  }
-
-  function _render() {
-    //clear all board divs
-    _clearBoard();
-    //resize grid to fit user input
-    _setInput();
-    //add divs based on user input
-    for (let i = 0; i < numDiv[0]; i++) {
-      $board.append(`<div id="${i}" class="item"></div>`);
-    };
-    //add event handlers to divs
-    _refreshDivs();
-    //TODO clear cached crystalsToRender array from crystalsModule
+    manualActiveCrystals.push([color, position]);
   }
 
   return {
     numDiv: numDiv,
     boardModuleInit: boardModuleInit,
-    crystalsToActivate: crystalsToActivate,
+    manualActiveCrystals: manualActiveCrystals,
   };
 })();
 
@@ -97,7 +112,7 @@ const crystalsModule = (function crystals() {
   //values recieved from the boardModule.crystalsToActivate array
   let crystalsToRender = [];
 
-  //Crystal Objects
+  //Crystal Object Constructor
   const Crystal = {
     init: function(color, position) {
       this.color = color,
@@ -249,9 +264,6 @@ const crystalsModule = (function crystals() {
       let reducedNeighbors = neighborCrystals.map(obj => ({color: obj.color, position: obj.position}));
       //push to this crystal's neighbor array
       this.neighbors.push(reducedNeighbors);
-
-      //console.log(this.neighbors);
-
     },
     setGrow: function() { this.willGrow = true; },
     setUnGrow: function() { this.willGrow = false; },
@@ -259,32 +271,34 @@ const crystalsModule = (function crystals() {
     setUnDie: function() { this.willDie = false; },
   };
 
+  //*
   //Methods
-  function crystalsModuleInit() {
-    //recieve active crystal list from boardModule.
-    //index 0 = position, index 1 = color
-    let crystalsToActivate = boardModule.crystalsToActivate;
-    //clear cached crystalsToRender array
+  //*
+
+  function manualCrystalsModuleInit() {
+    // Manual Mode: After the user inputs active divs on the game board,
+    // the corresponding divs are populated with crystal objects using the
+    // manualActiveCrystal array as a reference, index 0 = position, index 1 = color
+    let manualActiveCrystals = boardModule.manualActiveCrystals;
     //find game boardLength
     let boardLength = Math.sqrt(boardModule.numDiv);
-    generateCrystal(crystalsToActivate, boardLength);
-    changeCrystalState(boardLength);
-    updateCrystalsToActivate();
+    //add crystal objects to manually active divs
+    manualGenerateCrystal(manualActiveCrystals, boardLength);
+    updateCrystalState(manualActiveCrystals, boardLength);
+    boardModule.boardModuleInit();
   };
 
-  function generateCrystal(crystalsToActivate, boardLength) {
-    //create crystal objects in crystals to activate
-    for(let i = 0; i < crystalsToActivate.length; i++) {
+  function manualGenerateCrystal(manualActiveCrystals, boardLength) {
+    // use manualActiveCrystals as a reference to place new crystal objects
+    for(let i = 0; i < manualActiveCrystals.length; i++) {
       crystalsToRender[i] = Object.create(Crystal);
-      crystalsToRender[i].init("red", crystalsToActivate[i][1]);
+      crystalsToRender[i].init("red", manualActiveCrystals[i][1]);
       crystalsToRender[i].setPieceType(boardLength);
-      //TIME TO WHIP OUT SOME FUNCTIONAL PROGRAMMING AND
-      // Grow crystals by passing back crystalsToRender module
     };
   };
 
-  function changeCrystalState(boardLength) {
-    // once all crystals are generate record neighboring crystals
+  function updateCrystalState(manualActiveCrystals, boardLength) {
+    // once all crystals are generated, record neighboring crystals
     for(let i = 0; i < crystalsToRender.length; i++) {
       crystalsToRender[i].findNeighbors(boardLength);
       //set toGrow
@@ -296,21 +310,10 @@ const crystalsModule = (function crystals() {
         crystalsToRender[i].setDie();
       }
     };
-    console.log(crystalsToRender);
-  }
-
-//TODO
-  function updateCrystalsToActivate() {
-    console.log(boardModule.crystalsToActivate);
-    //create function for crystal growth
-    //remove crystals marked for deletion
-
-
-    return;
-  }
+  };
 
   return {
-    crystalsModuleInit: crystalsModuleInit,
+    manualCrystalsModuleInit: manualCrystalsModuleInit,
     crystalsToRender: crystalsToRender,
   };
 })();
