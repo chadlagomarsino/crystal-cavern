@@ -25,3 +25,7 @@ body {
   background-color: rgba(223, 177, 39, 0.24);
   border: 2px black solid;
 }
+
+.item-active {
+  background-color: tomato;
+}

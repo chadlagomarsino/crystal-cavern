@@ -1,3 +1,5 @@
+//TODO ENABLE COLOR CHANGE FOR DIVS ON CRYSTAL DROP AND GROW
+
 'use strict';
 
 // Cellular Autonoma with Manual and Auto Mode
@@ -31,7 +33,19 @@ const boardModule = (function board() {
     else {console.log("Input must be greater than 4 and less than 64.");}
   });
   $start.on('click', function() {
+    //TODO begin game loop
+
     crystalsModule.manualCrystalsModuleInit();
+    boardModuleInit();
+    console.log("loop test");
+    crystalsModule.autoCrystalsModuleInit();
+    boardModuleInit();
+    console.log("loop 2 test");
+    crystalsModule.autoCrystalsModuleInit();
+    boardModuleInit();
+    console.log("loop 3 test");
+    crystalsModule.autoCrystalsModuleInit();
+    boardModuleInit();
   });
   //TODO reset
 
@@ -45,12 +59,21 @@ const boardModule = (function board() {
   // accepts crystalsToRender array from crystal module and displays
   // activated crystals on the DOM
   function boardModuleInit() {
+
+    //reset all DOM colors
+    //grab all active divs
+    let $active_divs = $board.find('.item-active');
+    //reset active div classes
+    $active_divs.toggleClass('item-active');
+
+    //fetch crystalsToRender
     let crystalsToRender = crystalsModule.crystalsToRender;
+    //console.log(crystalsToRender);
     //display activated crystals on DOM
     for (let i = 0; i < crystalsToRender.length; i++) {
       //grab each div that maps to an active crystal object
       let activeDiv = document.getElementById(crystalsToRender[i].position);
-      activeDiv.style.background = 'goldenrod';
+      activeDiv.classList.add("item-active");
     }
   }
 
@@ -85,7 +108,7 @@ const boardModule = (function board() {
     //grab all divs
     let $divs = $board.find('.item');
     // enable color change on click
-    $divs.one('click', function() { this.style.background = 'tomato'});
+    $divs.one('click', function() { this.classList.add("item-active") });
     // track which divs were clicked
     $divs.one('click', _logPosition);
   }
@@ -258,8 +281,10 @@ const crystalsModule = (function crystals() {
         };
       };
 
+      //pop current neighbors
+      this.neighbors.pop();
       //store all active neighbor crystal objects adjacent to this crystal
-      let neighborCrystals = crystalsToRender.filter(crystalFilter, this)
+      let neighborCrystals = crystalsModule.crystalsToRender.filter(crystalFilter, this)
       //reduce neighbor crystal objects to color and position
       let reducedNeighbors = neighborCrystals.map(obj => ({color: obj.color, position: obj.position}));
       //push to this crystal's neighbor array
@@ -284,8 +309,7 @@ const crystalsModule = (function crystals() {
     let boardLength = Math.sqrt(boardModule.numDiv);
     //add crystal objects to manually active divs
     manualGenerateCrystal(manualActiveCrystals, boardLength);
-    updateCrystalState(manualActiveCrystals, boardLength);
-    boardModule.boardModuleInit();
+    updateCrystalState(boardLength);
   };
 
   function manualGenerateCrystal(manualActiveCrystals, boardLength) {
@@ -297,22 +321,44 @@ const crystalsModule = (function crystals() {
     };
   };
 
-  function updateCrystalState(manualActiveCrystals, boardLength) {
+  function autoCrystalsModuleInit() {
+    // Auto Mode: After intialized with Manual Mode, accept the crystalToRender
+    // object array and mutate every cycle by droping or growing crystal objects,
+    // and then updating setDie and setGrow properties. This is then passed
+    // back to the boardModule to be uploaded to the DOM
+    let boardLength = Math.sqrt(boardModule.numDiv);
+    //drop crystals, filter out crystals with setDie property TRUE
+    console.log(crystalsModule.crystalsToRender);
+    let filteredCrystals = crystalsToRender.filter(function(crystal) {
+      return crystal.willDie == false;
+    });
+    //update module with new crystalsToRender
+    crystalsModule.crystalsToRender = filteredCrystals;
+    console.log(crystalsModule.crystalsToRender);
+    //grow crystals, create function for this, look for setgrow
+    //create a new list of crystals and merge to existing list
+    updateCrystalState(boardLength);
+  };
+
+  function updateCrystalState(boardLength) {
+    console.log(crystalsModule.crystalsToRender);
     // once all crystals are generated, record neighboring crystals
-    for(let i = 0; i < crystalsToRender.length; i++) {
-      crystalsToRender[i].findNeighbors(boardLength);
-      //set toGrow
-      if (crystalsToRender[i].neighbors[0].length > 2 ) {
-        crystalsToRender[i].setGrow();
-      }
-      //set toDie
-      if (crystalsToRender[i].neighbors[0].length < 2 ) {
-        crystalsToRender[i].setDie();
-      }
+    for(let i = 0; i < crystalsModule.crystalsToRender.length; i++) {
+      crystalsModule.crystalsToRender[i].findNeighbors(boardLength);
+      //set willGrow
+      if (crystalsModule.crystalsToRender[i].neighbors[0].length > 2 ) {
+        crystalsModule.crystalsToRender[i].setGrow();
+      };
+      //set willDie
+      if (crystalsModule.crystalsToRender[i].neighbors[0].length < 2 ) {
+        crystalsModule.crystalsToRender[i].setDie();
+      };
     };
+    console.log(crystalsModule.crystalsToRender);
   };
 
   return {
+    autoCrystalsModuleInit: autoCrystalsModuleInit,
     manualCrystalsModuleInit: manualCrystalsModuleInit,
     crystalsToRender: crystalsToRender,
   };
