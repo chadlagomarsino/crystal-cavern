@@ -327,20 +327,17 @@ const crystalsModule = (function crystals() {
     // back to the boardModule to be uploaded to the DOM
     let boardLength = Math.sqrt(boardModule.numDiv);
     //drop crystals, filter out crystals with setDie property TRUE
-    console.log(crystalsModule.crystalsToRender);
     let filteredCrystals = crystalsToRender.filter(function(crystal) {
       return crystal.willDie == false;
     });
     //update module with new crystalsToRender
     crystalsModule.crystalsToRender = filteredCrystals;
-    console.log(crystalsModule.crystalsToRender);
     //grow crystals, create function for this, look for setgrow
     //create a new list of crystals and merge to existing list
     updateCrystalState(boardLength);
   };
 
   function updateCrystalState(boardLength) {
-    console.log(crystalsModule.crystalsToRender);
     // once all crystals are generated, record neighboring crystals
     for(let i = 0; i < crystalsModule.crystalsToRender.length; i++) {
       crystalsModule.crystalsToRender[i].findNeighbors(boardLength);
@@ -353,7 +350,6 @@ const crystalsModule = (function crystals() {
         crystalsModule.crystalsToRender[i].setDie();
       };
     };
-    console.log(crystalsModule.crystalsToRender);
   };
 
   return {

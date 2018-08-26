@@ -31,10 +31,12 @@ const boardModule = (function board() {
       _reloadBoard();
     }
     else {console.log("Input must be greater than 4 and less than 64.");}
+    //console.log(crystalsModule.crystalsToRender);
+    //crystalsModule.crystalsToRender.length = 0;
+    //console.log(crystalsModule.crystalsToRender);
   });
   $start.on('click', function() {
     //TODO begin game loop
-
     crystalsModule.manualCrystalsModuleInit();
     boardModuleInit();
     console.log("loop test");
@@ -68,34 +70,27 @@ const boardModule = (function board() {
 
     //fetch crystalsToRender
     let crystalsToRender = crystalsModule.crystalsToRender;
-    //console.log(crystalsToRender);
+    console.log(crystalsToRender);
     //display activated crystals on DOM
     for (let i = 0; i < crystalsToRender.length; i++) {
       //grab each div that maps to an active crystal object
       let activeDiv = document.getElementById(crystalsToRender[i].position);
       activeDiv.classList.add("item-active");
+      //console.log(activeDiv);
     }
   }
 
   function _reloadBoard() {
 
     //remove all divs from game board
-    function _clearBoard() {
-      $board.empty();
-    }
+    $board.empty();
 
     //update numDiv and --colNum for CSS Grid with user input
-    function _setInput() {
-      numDiv.pop();
-      let inputValue = $userInput.val();
-      numDiv.push(inputValue * inputValue);
-      $board.css('--colNum', inputValue);
-    }
+    numDiv.pop();
+    let inputValue = $userInput.val();
+    numDiv.push(inputValue * inputValue);
+    $board.css('--colNum', inputValue);
 
-    //clear all board divs
-    _clearBoard();
-    //resize grid to fit user input
-    _setInput();
     //add divs based on user input
     for (let i = 0; i < numDiv[0]; i++) {
       $board.append(`<div id="${i}" class="item"></div>`);
@@ -105,21 +100,22 @@ const boardModule = (function board() {
   }
 
   function _refreshDivs() {
+
+    //log position of activated divs
+    function _logPosition() {
+      let color = "red"
+      //NOTE: Position IDs begin with 0 and increment untill the number of
+      // squares - 1.
+      let position = this.id;
+      manualActiveCrystals.push([color, position]);
+    }
+
     //grab all divs
     let $divs = $board.find('.item');
     // enable color change on click
     $divs.one('click', function() { this.classList.add("item-active") });
     // track which divs were clicked
     $divs.one('click', _logPosition);
-  }
-
-  //log position of activated divs
-  function _logPosition() {
-    let color = "red"
-    //NOTE: Position IDs begin with 0 and increment untill the number of
-    // squares - 1.
-    let position = this.id;
-    manualActiveCrystals.push([color, position]);
   }
 
   return {
@@ -328,20 +324,17 @@ const crystalsModule = (function crystals() {
     // back to the boardModule to be uploaded to the DOM
     let boardLength = Math.sqrt(boardModule.numDiv);
     //drop crystals, filter out crystals with setDie property TRUE
-    console.log(crystalsModule.crystalsToRender);
     let filteredCrystals = crystalsToRender.filter(function(crystal) {
       return crystal.willDie == false;
     });
     //update module with new crystalsToRender
     crystalsModule.crystalsToRender = filteredCrystals;
-    console.log(crystalsModule.crystalsToRender);
     //grow crystals, create function for this, look for setgrow
     //create a new list of crystals and merge to existing list
     updateCrystalState(boardLength);
   };
 
   function updateCrystalState(boardLength) {
-    console.log(crystalsModule.crystalsToRender);
     // once all crystals are generated, record neighboring crystals
     for(let i = 0; i < crystalsModule.crystalsToRender.length; i++) {
       crystalsModule.crystalsToRender[i].findNeighbors(boardLength);
@@ -354,7 +347,6 @@ const crystalsModule = (function crystals() {
         crystalsModule.crystalsToRender[i].setDie();
       };
     };
-    console.log(crystalsModule.crystalsToRender);
   };
 
   return {
